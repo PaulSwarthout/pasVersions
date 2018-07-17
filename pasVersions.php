@@ -3,7 +3,7 @@
    Plugin Name: Web Environment Version Information
    Plugin URI: http://www.paulswarthout.com/index.php/wordpress/
    Description: A plugin to display information about the Wordpress Web environment. This can be useful for both development and production. The output from this plugin appears on the Wordpress Dashboard only.
-   Version: 1.1
+   Version: 1.2
    Author: Paul A. Swarthout
    License: GPL2
    */
