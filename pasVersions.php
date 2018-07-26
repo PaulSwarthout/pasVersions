@@ -11,10 +11,15 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+require_once(dirname(__FILE__) . '/lib/plugin_constants.php');
+require_once(dirname(__FILE__) . '/classes/class-webEnvironment.php');
+require_once(dirname(__FILE__) . '/classes/class-serverInfo.php');
+
 register_deactivation_hook(__FILE__, 'pas_version_deactivate' );
 
 add_action('admin_menu', 'show_php_version_menu' );
 add_action('admin_enqueue_scripts', 'pas_version_script' );
+add_action('admin_enqueue_scripts', 'pas_version_style' );
 add_action('wp_ajax_hideMenuOption', 'hideMenuOption');
 add_action('wp_ajax_pas_version_reveal_menu', 'revealMenuOption');
 add_action('wp_dashboard_setup', 'pas_version_dashboard_widgets');
@@ -28,7 +33,12 @@ function getConstant($c) {
 }
 
 function pas_version_script() {
-	wp_enqueue_script( 'pas_version_scripts', plugin_dir_url( __FILE__ ) . 'js/pas_version_scripts.js' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
+	$pluginDirectory = plugin_dir_url(__FILE__);
+	wp_enqueue_script( 'pas_version_scripts', $pluginDirectory . 'js/pasVersions.js' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
+}
+function pas_version_style() {
+	$pluginDirectory = plugin_dir_url(__FILE__);
+	wp_enqueue_style( 'pas_version_styles', $pluginDirectory . 'css/style.css' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
 }
 
 function show_php_version_menu() {
@@ -67,7 +77,16 @@ function pasVersionInfo() {
 function pas_version_dashboard_widgets() {
 	global $wp_meta_boxes;
 	 
-	wp_add_dashboard_widget('pas_version_widget', 'Web Environment', 'pas_version_dashboard');
+	wp_add_dashboard_widget('pas_version_widget', 'Web Environment', 'pas_version_dashboard2');
+}
+function pas_version_dashboard2() {
+	global $wp_version;
+	global $wpdb;
+
+	$webEnvironment = new Web_Environment("WHY IS THIS HERE", "WebEnvironment");
+	$webEnvironment->initializeEnvironmentData();
+	$webEnvironment->dumpEnvironmentData();
+	unset($webEnvironment);
 }
 
 function pas_version_dashboard() {

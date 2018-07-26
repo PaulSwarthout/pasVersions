@@ -1,0 +1,15 @@
+/* Styles.css */
+
+p.attributeEntry {
+	margin:0px 0px 2px 0px;
+}
+.hiddenAttribute {
+	background-color:rgba(0, 0, 0, .1);
+	color:white;
+}
+.visibleAttribute {
+	padding:0 10px 0 3px;
+	background-color:white;
+	color:black;
+	border:0pt;
+}
