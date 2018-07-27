@@ -59,14 +59,15 @@ function revealMenu() {
 }
 
 var pvItem = "";
-var tID = 0;
+var tID = "";
+var tenSeconds = 10000
 
 function pvShowItem(item, pwd) {
 	var ndx;
 	if (pvItem == "") {
 		pvItem = item.innerHTML
 	}
-	tID = setTimeout(function () { item.innerHTML = pvItem; item.className = "hiddenAttribute" }, 10000);
+	tID = setTimeout(function () { item.innerHTML = pvItem; item.className = "pvItemValueHidden" }, tenSeconds);
 	item.innerHTML = pwd
-	item.className = "visibleAttribute"
+	item.className = "pvItemValueVisible"
 }

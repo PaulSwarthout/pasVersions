@@ -2,6 +2,8 @@
 
 p.attributeEntry {
 	margin:0px 0px 2px 0px;
+	line-height:;
+	font-weight:normal;
 }
 .hiddenAttribute {
 	background-color:rgba(0, 0, 0, .1);
@@ -12,4 +14,46 @@ p.attributeEntry {
 	background-color:white;
 	color:black;
 	border:0pt;
+	font-weight:bold;
 }
+.pvItemHeading {
+	margin:0px 0px 2px 0px;
+	line-height:;
+	font-weight:bold;
+	font-size:10pt;
+	font-family:courier-new;
+	width:200px;
+	display:inline-block;
+	vertical-align:top;
+	overflow:hidden;
+}
+.pvMouseOver {
+	display:inline-block;
+	background-color:transparent;
+	color:black;
+	font-size:8pt;
+	width:200px;
+	padding:0px;
+	text-align:left;
+	font-weight:normal;
+}
+.pvItemValueHidden {
+	display:inline-block;
+	background-color:rgba(176, 176, 176, .1);
+	color:rgba(0,0,0,.1);
+	padding:0 0 0 10px;
+	width:200px;
+	text-align:center;
+	font-weight:normal;
+}
+.pvItemValueVisible {
+	padding:0 0 0 10px;
+	background-color:white;
+	color:black;
+	font-weight:normal;
+	font-family:courier-new;
+	font-size:10pt;
+	width:200px;
+	display:inline-block;
+}
+

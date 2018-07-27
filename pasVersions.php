@@ -15,14 +15,14 @@ require_once(dirname(__FILE__) . '/lib/plugin_constants.php');
 require_once(dirname(__FILE__) . '/classes/class-webEnvironment.php');
 require_once(dirname(__FILE__) . '/classes/class-serverInfo.php');
 
-register_deactivation_hook(__FILE__, 'pas_version_deactivate' );
+register_deactivation_hook(__FILE__, 'pasVersions_deactivate' );
 
 add_action('admin_menu', 'show_php_version_menu' );
-add_action('admin_enqueue_scripts', 'pas_version_script' );
-add_action('admin_enqueue_scripts', 'pas_version_style' );
+add_action('admin_enqueue_scripts', 'pasVersions_script' );
+add_action('admin_enqueue_scripts', 'pasVersions_style' );
 add_action('wp_ajax_hideMenuOption', 'hideMenuOption');
 add_action('wp_ajax_pas_version_reveal_menu', 'revealMenuOption');
-add_action('wp_dashboard_setup', 'pas_version_dashboard_widgets');
+add_action('wp_dashboard_setup', 'pasVersions_dashboardWidgets');
 
 function getConstant($c) {
 	if (defined($c)) {
@@ -32,33 +32,66 @@ function getConstant($c) {
 	}
 }
 
-function pas_version_script() {
-	$pluginDirectory = plugin_dir_url(__FILE__);
-	wp_enqueue_script( 'pas_version_scripts', $pluginDirectory . 'js/pasVersions.js' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
+$defaultOptions = PASVERSIONS_DEFAULT_OPTIONS;
+$debugging = getConstant('WP_DEBUG', false);
+$plugin_directory = $pluginFolder;
+$options =
+	parseOptions(
+		[ 'optionString' => get_option("pasVersionsOptions", $defaultOptions),
+			'primaryDelimiter' => '/;/',
+			'secondaryDelimiter' => '/:/'
+		] );
+$bInitComplete = ($options['INITCOMPLETE'] === "YES" ? true : false);
+$bDashboard = ($options['DASHBOARD'] === "YES" ? true : false);
+$bShowSensitive = ($options['SHOWSENSITIVE'] === "YES" ? true : false);
+$bHideMenu = ($options['HIDEMENU'] === "YES" ? true : false);
+
+function parseOptions($args) {
+	$inputString				= $args['optionString'];
+	$primaryDelimiter		= $args['primaryDelimiter'];
+	$secondaryDelimiter = $args['secondaryDelimiter'];
+
+	$options = Array();
+	$primary = preg_split($primaryDelimiter, $inputString);
+	for ($ndx = 0; $ndx < count($primary); $ndx++) {
+		if (strlen($primary[$ndx]) > 0) {
+			$secondary = preg_split($secondaryDelimiter, $primary[$ndx]);
+
+			if (count($secondary) > 0) {
+				$options[$secondary[0]] = $secondary[1];
+			}
+		}
+	}
+	return $options;
 }
-function pas_version_style() {
+
+function pasVersions_script() {
 	$pluginDirectory = plugin_dir_url(__FILE__);
-	wp_enqueue_style( 'pas_version_styles', $pluginDirectory . 'css/style.css' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
+	wp_enqueue_script( 'pasVersions_scripts', $pluginDirectory . 'js/pasVersions.js' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
+}
+function pasVersions_style() {
+	$pluginDirectory = plugin_dir_url(__FILE__);
+	wp_enqueue_style( 'pasVersions_styles', $pluginDirectory . 'css/style.css' . (getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
 }
 
 function show_php_version_menu() {
-	if (get_option('pas_version_hide_menu', false) == false) {
+	if (get_option('pasVersions_hideMenu', false) == false) {
 		add_menu_page( 'VERSIONS', 'VERSIONS INFO', 'manage_options', 'pasVersionInfo', 'pasVersionInfo');
 	}
 }
 
 function hideMenuOption() {
-	update_option('pas_version_hide_menu', true);
+	update_option('pasVersions_hideMenu', true);
 	wp_redirect(admin_url("index.php"));
 	exit;
 }
 function revealMenuOption() {
-	delete_option('pas_version_hide_menu');
+	delete_option('pasVersions_hideMenu');
 	exit;
 }
 
-function pas_version_deactivate() {
-	delete_option('pas_version_hide_menu');
+function pasVersions_deactivate() {
+	delete_option('pasVersions_hideMenu');
 }
 
 function pasVersionInfo() {
@@ -70,16 +103,16 @@ function pasVersionInfo() {
 	echo "<br><br>";
 	echo "Now that you know where to find the information, if you think that you'll remember that, you can check the box below to hide this menu option (I know how cluttered the dashboard menu can get).<br>";
 
-	echo "<br><input type='checkbox' value='" . get_option('pas_version_hide_menu', 'HIDE MENU') . "' name='hide_menu' onclick='javascript:hideMenu(this);'> Hide VERSIONS INFO Menu<br>";
+	echo "<br><input type='checkbox' value='" . get_option('pasVersions_hideMenu', 'HIDE MENU') . "' name='hide_menu' onclick='javascript:hideMenu(this);'> Hide VERSIONS INFO Menu<br>";
 	echo "</div>";
 }
 
-function pas_version_dashboard_widgets() {
+function pasVersions_dashboardWidgets() {
 	global $wp_meta_boxes;
 	 
-	wp_add_dashboard_widget('pas_version_widget', 'Web Environment', 'pas_version_dashboard2');
+	wp_add_dashboard_widget('pasVersions_widget', 'Web Environment', 'pasVersions_dashboard');
 }
-function pas_version_dashboard2() {
+function pasVersions_dashboard() {
 	global $wp_version;
 	global $wpdb;
 
@@ -88,73 +121,3 @@ function pas_version_dashboard2() {
 	$webEnvironment->dumpEnvironmentData();
 	unset($webEnvironment);
 }
-
-function pas_version_dashboard() {
-	global $wp_version;
-	global $wpdb;
-
-	$isql = "select version() as 'version';";
-	$results = $wpdb->get_results($isql);
-	$mysqlVersion = explode("-", $results[0]->version);
-	$mysqlVersion = $mysqlVersion[0];
-
-	$versions = Array();
-
-	$versions['WORDPRESS_VERSION'] = $wp_version;
-	$versions['PHP_VERSION'] = phpversion();
-	$versions['MYSQL_VERSION'] = $mysqlVersion;
-	$versions['DB_HOST'] = constant('DB_HOST');
-	$versions['DB_USER'] = constant('DB_USER');
-	$versions['DB_PASS'] = constant('DB_PASSWORD');
-	$versions['DB_NAME'] = constant('DB_NAME');
-	$versions['WP_DEBUG'] = (getConstant('WP_DEBUG') === true ? "<font style='color:red;background-color:white;'>Enabled</font>" : "Disabled");
-	$versions['WP_ALLOW_MULTISITE'] = (getConstant('WP_ALLOW_MULTISITE') === true ? "Yes" : "No");
-	$versions['CURRENT_THEME'] = wp_get_theme()->__toString();
-
-
-	$serverInfoAttributes = Array( 
-							  'WORDPRESS_VERSION' => Array('text' => 'Wordpress Version: ', 'array'=>$versions, 'inithide' => '' ),
-							  'WP_DEBUG' => Array ('text' => 'Wordpress Debug: ', 'array'=>$versions, 'inithide' => '' ),
-							  'WP_ALLOW_MULTISITE' => Array ('text' => 'Wordpress Allow Multisite: ', 'array'=>$versions, 'inithide' => '' ),
-							  'SERVER_SOFTWARE' => Array ('text' => 'Server Software: ', 'array' => $_SERVER, 'inithide' => '') ,
-							  'SERVER_NAME' => Array ('text' => 'Server Name: ', 'array' => $_SERVER, 'inithide' => '') , 
-							  'SERVER_ADDR' => Array ('text' => 'Server Address: ', 'array' => $_SERVER, 'inithide' => '') ,
-							  'SERVER_ADMIN' => Array ('text' => 'Server Admin: ', 'array' => $_SERVER, 'inithide' => '') ,
-							  'PHP_VERSION' => Array ('text' => 'PHP Version: ', 'array'=>$versions, 'inithide' => '' ),
-		                      'MYSQL_VERSION' => Array ('text' => 'MySQL Version: ', 'array'=>$versions, 'inithide' => '' ),
-							  'DB_HOST' => Array ('text' => 'Database Host: ', 'array'=>$versions, 'inithide' => '' ),
-							  'DB_USER' => Array ('text' => 'Database User: ', 'array'=>$versions, 'inithide' => '' ),
-							  'DB_PASS' => Array ('text' => 'Database Password: ', 'array'=>$versions, 'inithide' => 'hide' ),
-							  'DB_NAME' => Array ('text' => 'Database Name: ', 'array'=>$versions, 'inithide' => '' ),
-							  'CURRENT_THEME' => Array ('text' => 'Current Active Theme: ', 'array'=>$versions, 'inithide' => ''),
-							  'REMOTE_ADDR' => Array ('text' => 'Your IP: ', 'array' => $_SERVER, 'inithide' => '') ,
-							  'HTTP_USER_AGENT' => Array ('text' => 'User Agent: ', 'array' => $_SERVER, 'inithide' => '') 
-							);
-	
-	foreach ($serverInfoAttributes as $serverKey => $datablock) {
-		$item = $datablock['text'];
-		$source = $datablock['array'];
-		$initHide = (strtoupper($datablock['inithide']) == "HIDE" ? true : false);
-
-		if (array_key_exists($serverKey, $source)) {
-			if ($initHide) {
-				echo $item . "<span style='padding:0 10px 0 3px;background-color:white;color:black;border:0pt;' onclick='javascript:pvShowItem(this, \"" . $source[$serverKey] . "\");'>(click to reveal)</span><br>";
-			} else {
-				echo $item . "<b>" . $source[$serverKey] . "</b><br>";
-			}
-
-		}
-	}
-	echo "<hr>";
-	echo "<table style='border:0pt;width:100%;'><tr>";
-	echo "<td style='text-align:left;font-family:courier-new;font-size:10pt;'>";
-	echo "<a href='http://paulswarthout.com/index.php/wordpress/'>PaulSwarthout.com/wordpress</a>";
-	echo "</td><td style='text-align:right;font-family:courier-new;font-size:10pt;'>";
-	if (get_option('pas_version_hide_menu', false) == true) {
-		echo "<a href='javascript:void(0);' onclick='javascript:revealMenu();'>reveal menu</a>";
-	} else { echo "&nbsp;"; }
-	echo "</tr></table>";
-}
-
-
-?>

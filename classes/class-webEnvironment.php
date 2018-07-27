@@ -14,41 +14,9 @@ if (! class_exists('Web_Environment') ) {
 		public $bHideMenu;
 
 
-		function parseOptions($args) {
-			$inputString				= $args['optionString'];
-			$primaryDelimiter		= $args['primaryDelimiter'];
-			$secondaryDelimiter = $args['secondaryDelimiter'];
-
-			$options = Array();
-			$primary = preg_split($primaryDelimiter, $inputString);
-			for ($ndx = 0; $ndx < count($primary); $ndx++) {
-				if (strlen($primary[$ndx]) > 0) {
-					$secondary = preg_split($secondaryDelimiter, $primary[$ndx]);
-
-					if (count($secondary) > 0) {
-						$options[$secondary[0]] = $secondary[1];
-					}
-				}
-			}
-			return $options;
-		}
 		function __construct($pluginFolder, $pluginBasename) {
 			global $stringTable;
 			global $serverData;
-
-			$this->defaultOptions = PASVERSIONS_DEFAULT_OPTIONS;
-			$this->debugging = $this->getConstant('WP_DEBUG', false);
-			$this->plugin_directory = $pluginFolder;
-			$this->options =
-				$this->parseOptions(
-					[ 'optionString' => get_option("pasVersionsOptions", $this->defaultOptions),
-				 		'primaryDelimiter' => '/;/',
-						'secondaryDelimiter' => '/:/'
-					] );
-			$this->bInitComplete = ($this->options['INITCOMPLETE'] === "YES" ? true : false);
-			$this->bDashboard = ($this->options['DASHBOARD'] === "YES" ? true : false);
-			$this->bShowSensitive = ($this->options['SHOWSENSITIVE'] === "YES" ? true : false);
-			$this->bHideMenu = ($this->options['HIDEMENU'] === "YES" ? true : false);
 
 			$serverData = new serverInfo();
 
@@ -194,6 +162,7 @@ if (! class_exists('Web_Environment') ) {
 			if (defined('FTP_PASS')) { $versions['FTP_PASS'] = constant('FTP_PASS'); }
 			if (defined('FTP_HOST')) { $versions['FTP_HOST'] = constant('FTP_HOST'); }
 			if (defined('FTP_SSL')) { $versions['FTP_SSL'] = (constant('FTP_SSL') === true ? "Yes" : "No"); }
+			if (defined('PHP_OS')) { $versions['PHP_OS'] = constant('PHP_OS'); }
 
 			$versions['CURRENT_THEME'] = wp_get_theme()->__toString();
 
@@ -264,7 +233,7 @@ if (! class_exists('Web_Environment') ) {
 			$serverData->add(	[	'itemName'			=> 'FTP_USER',
 													'text'					=> 'FTP Username: ',
 													'data'					=> &$versions,
-													'initialState'	=> 'visible',
+													'initialState'	=> 'hidden',
 													'capability'		=> 'manage_options',
 													'colorIfTrue'		=> ''
 												]);
@@ -278,12 +247,19 @@ if (! class_exists('Web_Environment') ) {
 			$serverData->add(	[	'itemName'			=> 'FTP_HOST',
 													'text'					=> 'FTP Host: ',
 													'data'					=> &$versions,
-													'initialState'	=> 'visible',
+													'initialState'	=> 'hidden',
 													'capability'		=> 'manage_options',
 													'colorIfTrue'		=> ''
 												]);
 			$serverData->add(	[	'itemName'			=> 'FTP_SSL',
 													'text'					=> 'FTP Use SSL: ',
+													'data'					=> &$versions,
+													'initialState'	=> 'hidden',
+													'capability'		=> 'manage_options',
+													'colorIfTrue'		=> ''
+												]);
+			$serverData->add( [ 'itemName'			=> 'PHP_OS',
+													'text'					=> 'Server OS: ',
 													'data'					=> &$versions,
 													'initialState'	=> 'visible',
 													'capability'		=> 'manage_options',
@@ -374,13 +350,12 @@ if (! class_exists('Web_Environment') ) {
 													'colorIfTrue'		=> ''
 												]);
 			$serverData->add(	[	'itemName'			=> 'HTTP_USER_AGENT',
-													'text'					=> 'User Agent: ',
+													'text'					=> 'Your browser: ',
 													'data'					=> &$_SERVER,
 													'initialState'	=> 'visible',
 													'capability'		=> 'read',
 													'colorIfTrue'		=> ''
 												]);
-
 		}
 		function dumpEnvironmentData() {
 			global $wp_version;
@@ -395,16 +370,23 @@ if (! class_exists('Web_Environment') ) {
 
 				if (current_user_can($capability)) {
 					if (array_key_exists($serverKey, $source)) {
-						echo "<p class='attributeEntry'>";
+//						echo "<p class='attributeEntry'>";
+						echo "<span class='pvItemHeading'>";
+						echo "<nobr>" . $item . ".............................................</nobr>";
+						echo "</span>";
 						if (! $isVisible) {
-							echo $item . "<span class='hiddenAttribute' "
-							           . "      onclick='javascript:pvShowItem(this, \"" . $source[$serverKey] . "\");'>";
+							echo "<span class='pvItemValueHidden' "
+							   . "      onclick='javascript:pvShowItem(this, \"" . $source[$serverKey] . "\");'"
+								 . "      onmouseover='javascript:pvShowHelp(this);' "
+								 . "      onmouseout='javascript:pvHideHelp(this);' >";
 							echo "click to reveal";
 							echo "</span>";
 						} else {
-							echo $item . "<b>" . $source[$serverKey] . "</b><br>";
+							echo "<span class='pvItemValueVisible'>";
+							echo $source[$serverKey];
+							echo "</span>";
 						}
-						echo "</p>";
+						echo "<br>";
 					}
 				}
 			}
