@@ -27,6 +27,10 @@ p.attributeEntry {
 	vertical-align:top;
 	overflow:hidden;
 }
+.dots {
+	font-size:6pt;
+	color:black;
+}
 .pvMouseOver {
 	display:inline-block;
 	background-color:transparent;

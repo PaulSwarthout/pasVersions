@@ -34,7 +34,7 @@ function getConstant($c) {
 
 $defaultOptions = PASVERSIONS_DEFAULT_OPTIONS;
 $debugging = getConstant('WP_DEBUG', false);
-$plugin_directory = $pluginFolder;
+//$plugin_directory = $pluginFolder;
 $options =
 	parseOptions(
 		[ 'optionString' => get_option("pasVersionsOptions", $defaultOptions),

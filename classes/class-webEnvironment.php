@@ -372,7 +372,7 @@ if (! class_exists('Web_Environment') ) {
 					if (array_key_exists($serverKey, $source)) {
 //						echo "<p class='attributeEntry'>";
 						echo "<span class='pvItemHeading'>";
-						echo "<nobr>" . $item . ".............................................</nobr>";
+						echo "<nobr>" . $item . "<span class='dots'>...............................................................................</span></nobr>";
 						echo "</span>";
 						if (! $isVisible) {
 							echo "<span class='pvItemValueHidden' "
