@@ -44,12 +44,14 @@ function hideMenu(buttonElement) {
 	frm.submit()
 }
 
-function revealMenu() {
+// currentSetting = true: menu is hidden
+function revealMenu(currentSetting) {
 	var xmlhttp = new XMLHttpRequest();
 	var data = new FormData();
 
 	xmlhttp.open("POST",ajaxurl,true);
-	data.append("action", "pas_version_reveal_menu");
+	data.append("action", "pasVersions_revealMenu");
+	data.append("hideMenu", currentSetting);
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.status == 200) {
 			location.reload();

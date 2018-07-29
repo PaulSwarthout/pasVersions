@@ -1,54 +1,30 @@
 <?PHP
-if (! class_exists('Web_Environment') ) {
-	class Web_Environment {
+if (! class_exists('Dev_Environment') ) {
+	class Dev_Environment {
 		private $stringTable;
 		private $debugging;
 		private $plugin_directory;
-		private $options;
-		private $defaultOptions;
 		private $versions;
 		private $serverData;
-		public $bInitComplete;
-		public $bDashboard;
-		public $bShowSensitive;
-		public $bHideMenu;
-
+		public  $bHideMenu;
 
 		function __construct($pluginFolder, $pluginBasename) {
 			global $stringTable;
 			global $serverData;
 
+			$this->plugin_directory = $pluginFolder;
+			$this->bHideMenu = get_option('pasVersions_hideMenu', false);
+
 			$serverData = new serverInfo();
-
-			if (! $this->bInitComplete) {
-				update_option("pasVersionOptions", $this->defaultOptions);
-			}
-
-			// Add initialize line to the plugin listing.
-			if (! $this->bInitComplete) {
-				add_filter( "plugin_action_links_" . $pluginBasename, Array($this, 'plugin_add_settings_link' ));
-			}
 
 			add_action('admin_enqueue_scripts', Array($this, 'pasVersions_styles') );
 
-			add_action('admin_menu', array($this, 'show_php_version_menu' ));
 			add_action('admin_enqueue_scripts', array($this, 'pas_version_script' ));
 			add_action('wp_ajax_hideMenuOption', array($this, 'hideMenuOption'));
 			add_action('wp_ajax_pasVersion_saveOptions', array($this, 'pasVersion_saveOptions'));
 			add_action('wp_ajax_pas_version_reveal_menu', array($this, 'revealMenuOption'));
 			add_action('wp_ajax_pasVersion_initialize', array($this, 'pas_Versions_initialize'));
 			add_action('wp_dashboard_setup', array($this, 'pas_version_dashboard_widgets'));
-		}
-		function pasVersions_styles() {
-			wp_enqueue_style('web-environment', $this->plugin_directory . "css/styles.css" . ($this->debugging ? '?v=' . rand(1,99999) : ''), false);
-		}
-		function plugin_add_settings_link( $links ) {
-				$menuURL = menu_page_url('pasVersionInfo');
-				if (strlen($menuURL) > 0) {
-					$settings_link = '<a href="' . $menuURL . '">Initialize</a>';
-					array_push( $links, $settings_link );
-				}
-				return $links;
 		}
 		function getConstant($constantName, $defaultReturn = false) {
 			if (defined($constantName)) {
@@ -58,65 +34,8 @@ if (! class_exists('Web_Environment') ) {
 			}
 		}
 
-		function pasVersion_saveOptions() {
-			if (isset($_POST['pasVersionOptions'])) {
-				update_option("pasVersionOptions", $_POST['pasVersionOptions']);
-				wp_redirect(admin_url("index.php"));
-				exit;
-			}
-		}
 		function pas_version_script() {
 			wp_enqueue_script( 'pas_version_scripts', $this->plugin_directory . '/js/pas_version_scripts.js' . ($this->getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
-		}
-
-		function show_php_version_menu() {
-			if ($this->pasVersionOptions['HIDEMENU'] == "NO") {
-				add_menu_page( 'VERSIONS', 'Web Environment', 'manage_options', 'pasVersionInfo', Array($this, 'pasVersionInfo'), 1, 1);
-			}
-		}
-
-		function pas_version_deactivate() {
-			delete_option('pas_version_hide_menu');
-			delete_option('pasVersionInitComplete');
-			delete_option('pasVersion_dashboard_widget');
-			delete_option('pasVersion_Init_Complete');
-			delete_option('pasVersionOptions');
-		}
-
-		function pasVersionInfo() {
-			global $stringTable;
-
-			if (! current_user_can('manage_options')) {
-				wp_die("You are not authorized to access this page.");
-			}
-
-			echo $stringTable->getString('THANK YOU FOR INSTALLING');
-
-			echo "<p>";
-			echo "<form id='pasVersionOptionsForm'>";
-			echo "<ol type='1'>";
-			echo "<li><input type='radio' name='hideMenu' " . ($this->pasVersionOptions['HIDEMENU'] == "YES" ? " checked " : "") . " value='HIDEMENU:YES;'>&nbsp;HIDE DASHBOARD MENU&nbsp;&nbsp;<input type='radio' name='hideMenu'" . ($this->pasVersionOptions['HIDEMENU'] == "NO" ? " checked " : "") . " value='HIDEMENU:NO;'>&nbsp;SHOW DASHBOARD MENU</li>";
-			echo "<li><input type='radio' name='displayWhere' " . ($this->pasVersionOptions['DASHBOARD'] == "YES" ? " checked " : "") . " value='DASHBOARD:YES;'>&nbsp;SHOW AS DASHBOARD WIDGET&nbsp;&nbsp;<input type='radio' name='displayWhere' " . ($this->pasVersionOptions['DASHBOARD'] == "NO" ? " checked " : "") . " value='DASHBOARD:NO;'>&nbsp;SHOW ON DASHBOARD MENU PAGE</li>";
-			echo "<li><input type='radio' name='displayHow' " . ($this->pasVersionOptions['SHOWSENSITIVE'] == "YES" ? " checked " : "") . " value='SHOWSENSITIVE:YES;'>&nbsp;SHOW SENSITIVE INFO&nbsp;&nbsp;<input type='radio' name='displayHow' " . ($this->pasVersionOptions['SHOWSENSITIVE'] == "NO" ? " checked " : "") . " value='SHOWSENSITIVE:NO;'>&nbsp;DO NOT SHOW SENSITIVE INFO</li>";
-			echo "</ol>";
-			echo "<br>Note: You cannot display the information on a Dashboard Menu page (#2) if you Hide the Dashboard Menu (#1)<br><br>";
-			echo "<INPUT TYPE='BUTTON' VALUE='Save Options'  onclick='javascript:pasVersion_saveOptions(this.form);'>";
-			echo "<INPUT TYPE='HIDDEN' value='INITCOMPLETE:YES;' NAME='initComplete'>";
-			echo "</form>";
-		}
-
-		function pas_version_dashboard_widgets() {
-			global $wp_meta_boxes;
-			if ($this->pasVersionOptions['INITCOMPLETE'] == "YES") {
-				if ($this->pasVersionOptions['DASHBOARD'] == "YES") {
-					wp_add_dashboard_widget('pas_version_widget', 'Web Environment', Array($this, 'pas_version_dashboard'));
-				}
-			} else {
-				wp_add_dashboard_widget('pas_version_widget', 'Web Environment', Array($this, 'pasVersion_dashboardWidget_blank'));
-			}
-		}
-		function pasVersion_dashboardWidget_blank() {
-			echo "The Web Environment Dashboard Widget is blank until you initialize it. Go to the Web Environment Plugin on the plugins page and click the Initialize Link.";
 		}
 
 		function initializeEnvironmentData() {
@@ -395,10 +314,7 @@ if (! class_exists('Web_Environment') ) {
 			echo "<table style='border:0pt;width:100%;'><tr>";
 			echo "<td style='text-align:left;font-family:courier-new;font-size:10pt;'>";
 			echo "<a href='http://paulswarthout.com/index.php/wordpress/'>PaulSwarthout.com/wordpress</a>";
-			echo "</td><td style='text-align:right;font-family:courier-new;font-size:10pt;'>";
-			if ($this->bHideMenu) {
-				echo "<a href='javascript:void(0);' onclick='javascript:revealMenu();'>reveal menu</a>";
-			}
+			echo "</td>";
 			echo "</tr></table>";
 		}
 	}
