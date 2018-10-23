@@ -16,6 +16,17 @@ p.attributeEntry {
 	border:0pt;
 	font-weight:bold;
 }
+.pvHeading {
+	margin:5px 0px 2px 0px;
+	text-align:center;
+	font-weight:bold;
+	font-size:14pt;
+	font-family:monospace;
+	font-variant:small-caps;
+	width:100%;
+	color:black;
+	background-color:#C0C0C0;
+}
 .pvItemHeading {
 	margin:0px 0px 2px 0px;
 	line-height:;
@@ -44,7 +55,7 @@ p.attributeEntry {
 .pvItemValueHidden {
 	display:inline-block;
 	background-color:rgba(176, 176, 176, .1);
-	color:rgba(0,0,0,.1);
+	color:rgba(0,0,0,.4);
 	padding:0 0 0 10px;
 	width:200px;
 	text-align:center;

@@ -61,8 +61,8 @@ function pasVersionInfo() {
 
 function pasVersions_dashboardWidgets() {
 	global $wp_meta_boxes;
-	 
-	wp_add_dashboard_widget('pasVersions_widget', 'Development Environment', 'pasVersions_dashboard');
+
+	wp_add_dashboard_widget('pasVersions_widget', 'WP Environment', 'pasVersions_dashboard');
 }
 function pasVersions_dashboard() {
 	global $wp_version;
