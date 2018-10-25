@@ -3,10 +3,16 @@ if (! class_exists('pas_wse_server_info') ) {
 	class pas_wse_server_info {
 		private	$serverAttributes;
 		private $groupings;
+		private $library;
+		private $plugin_directory;
 
-		function __construct() {
+		function __construct($args) {
 			$this->serverAttributes = get_option("pas_wse_attributes", []);
 			$groupings				= get_option("pas_wse_groupings", []);
+
+			$this->library			= $args['libraryFunctions'];
+			$this->plugin_directory = $args['plugin_directory'];
+
 			if (count($groupings) > 0) {
 				setGroupings($groupings);
 			}
@@ -27,14 +33,8 @@ if (! class_exists('pas_wse_server_info') ) {
 				return null;
 			}
 		}
-		function digits($v, $n) {
-			while (strlen($v) < $n) {
-				$v = "0" . $v;
-			}
-			return $v;
-		}
 		function comparison($a, $b) {
-			return ($a['groupValue'] . "_" . digits($a['sequence'], 2) <= $b['groupValue'] . "_" . digits($b['sequence'], 2) ? -1 : 1);
+			return ($a['groupValue'] . "_" . $this->library->digits($a['sequence'], 2) <= $b['groupValue'] . "_" . $this->library->digits($b['sequence'], 2) ? -1 : 1);
 		}
 		function getAttributesSortedByGroup() {
 			foreach ($this->serverAttributes as $key => $attribute) {

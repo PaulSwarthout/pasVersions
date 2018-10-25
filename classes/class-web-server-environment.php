@@ -41,11 +41,14 @@ class pas_wse_web_server_environment {
 				'pluginDirectory'	=>	$this->plugin_directory,
 				'libraryFunctions'	=>	$this->library,
 			];
+		echo "<div id='tooSmallNote'>";
+		echo "This information cannot be displayed when the screen width is less than 240 pixels wide.";
+		echo "</div>";
 		echo "<div id='menuPage'>";
-		$devEnvironment = new pas_wse_server_data($args);
-		$devEnvironment->initializeEnvironmentData();
-		$devEnvironment->dumpEnvironmentData();
-		unset($devEnvironment);
+		$envData = new pas_wse_server_data($args);
+		$envData->initializeEnvironmentData();
+		$envData->dumpEnvironmentData();
+		unset($envData);
 		echo "</div>";
 	}
 	function web_environment_dashboardWidgets() {
@@ -62,9 +65,14 @@ class pas_wse_web_server_environment {
 				'pluginDirectory'	=>	$this->plugin_directory,
 				'libraryFunctions'	=>	$this->library,
 			];
-		$devEnvironment = new pas_wse_server_data($args);
-		$devEnvironment->initializeEnvironmentData();
-		$devEnvironment->dumpEnvironmentData();
-		unset($devEnvironment);
+		echo "<div id='tooSmallNote'>";
+		echo "This information cannot be displayed when the screen width is less than 240 pixels wide.";
+		echo "</div>";
+		echo "<div id='dashboardPage'>";
+		$envData = new pas_wse_server_data($args);
+		$envData->initializeEnvironmentData();
+		$envData->dumpEnvironmentData();
+		echo "</div>";
+		unset($envData);
 	}
 }

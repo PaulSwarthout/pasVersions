@@ -9,4 +9,11 @@ class pas_wse_common_functions {
 			return $returnIfNotDefined;
 		}
 	}
+	function digits($v, $n) {
+		while (strlen($v) < $n) {
+			$v = "0" . $v;
+		}
+		return $v;
+	}
+
 }

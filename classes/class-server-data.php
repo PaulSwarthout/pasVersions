@@ -10,8 +10,12 @@ if (! class_exists('pas_wse_server_data') ) {
 		function __construct($args) {
 			$this->plugin_directory = $args['pluginDirectory'];
 			$this->libraryFunctions = $args['libraryFunctions'];
+			$args = [
+						'libraryFunctions' => $this->libraryFunctions,
+						'plugin_directory' => $this->plugin_directory,
+					];
 
-			$this->serverData = new pas_wse_server_info();
+			$this->serverData = new pas_wse_server_info($args);
 
 			add_action('admin_enqueue_scripts', Array($this, 'pasVersions_styles') );
 			add_action('admin_enqueue_scripts', array($this, 'pas_version_script' ));
@@ -22,6 +26,54 @@ if (! class_exists('pas_wse_server_data') ) {
 			wp_enqueue_script( 'pas_version_scripts', $this->plugin_directory['url'] . '/js/pas_version_scripts.js' . ($this->libraryFunctions->getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
 		}
 
+		function dumpEnvironmentData() {
+			$attributes = $this->serverData->getAttributesSortedByGroup();
+
+			$lastGroup = (-1);
+
+			foreach ($attributes as $serverKey => $dataBlock) {
+				$item = $dataBlock['text'];
+				$source = $dataBlock['data'];
+				$isVisible = ("VISIBLE" === strtoupper($dataBlock['initialState']) ? true : false);
+				$capability = $dataBlock['capability'];
+				$groupValue = $dataBlock['groupValue'];
+
+				if ($lastGroup != $groupValue && array_key_exists($serverKey, $source) ) {
+					$groupHeading = "<div class='pvHeading'>" . $dataBlock['groupName'] . "</div>";
+					$lastGroup = $groupValue;
+
+					echo $groupHeading;
+				}
+
+				if (current_user_can($capability)) {
+					if (array_key_exists($serverKey, $source)) {
+						echo "<span class='pvLine'>";
+						echo "<span class='pvItemHeading'>";
+						echo "" . $item . "<span class='dots'>...............................................................................</span>";
+						echo "</span>";
+						if (! $isVisible) {
+							echo "<span class='pvItemValueHidden' "
+								 . "	onclick='javascript:pvShowItem(this, \"" . $source[$serverKey] . "\");' "
+								 . ">";
+							echo "click to reveal";
+							echo "</span>";
+						} else {
+							echo "<span class='pvItemValueVisible'>";
+							echo $source[$serverKey];
+							echo "</span>";
+						}
+						echo "</span><br>";
+					}
+				}
+			}
+
+			echo "<hr>";
+			echo "<table style='border:0pt;width:100%;'><tr>";
+			echo "<td style='text-align:left;font-family:courier-new;font-size:10pt;'>";
+			echo "<a href='http://paulswarthout.com/index.php/wordpress/'>PaulSwarthout.com/wordpress</a>";
+			echo "</td>";
+			echo "</tr></table>";
+		}
 		function initializeEnvironmentData() {
 			global $wpdb;
 			global $wp_version;
@@ -85,6 +137,17 @@ if (! class_exists('pas_wse_server_data') ) {
 			if (defined('FTP_HOST')) { $this->versions['FTP_HOST'] = constant('FTP_HOST'); }
 			if (defined('FTP_SSL')) { $this->versions['FTP_SSL'] = (constant('FTP_SSL') === true ? "Yes" : "No"); }
 			if (defined('PHP_OS')) { $this->versions['PHP_OS'] = constant('PHP_OS'); }
+
+			$userAgent = $_SERVER['HTTP_USER_AGENT'];
+			if (strlen($userAgent) > 15) {
+				$arr = explode(" ", $userAgent);
+				if (count($arr) > 0) {
+					$userAgent = $arr[0];
+				} else {
+					$userAgent = "";
+				}
+			}
+			if (strlen($userAgent) > 0) { $this->versions['HTTP_USER_AGENT'] = $userAgent; }
 
 			$this->serverData->add(	[	'itemName'		=> 'WORDPRESS_VERSION',
 										'text'			=> 'WordPress: ',
@@ -350,7 +413,7 @@ if (! class_exists('pas_wse_server_data') ) {
 			$this->serverData->add(	[	'itemName'		=> 'HTTP_USER_AGENT',
 										'sequence'		=>	3,
 										'text'			=> 'Your Browser: ',
-										'data'			=> &$_SERVER,
+										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'read',
 										'colorIfTrue'	=> '',
@@ -374,53 +437,6 @@ if (! class_exists('pas_wse_server_data') ) {
 										'colorIfTrue'	=> '',
 										'groupName'		=> 'Your Info'
 									]);
-		}
-		function dumpEnvironmentData() {
-			$attributes = $this->serverData->getAttributesSortedByGroup();
-
-			$lastGroup = (-1);
-
-			foreach ($attributes as $serverKey => $dataBlock) {
-				$item = $dataBlock['text'];
-				$source = $dataBlock['data'];
-				$isVisible = ("VISIBLE" === strtoupper($dataBlock['initialState']) ? true : false);
-				$capability = $dataBlock['capability'];
-				$groupValue = $dataBlock['groupValue'];
-
-				if ($lastGroup != $groupValue && array_key_exists($serverKey, $source) ) {
-					$groupHeading = "<div class='pvHeading'>" . $dataBlock['groupName'] . "</div>";
-					$lastGroup = $groupValue;
-
-					echo $groupHeading;
-				}
-
-				if (current_user_can($capability)) {
-					if (array_key_exists($serverKey, $source)) {
-						echo "<span class='pvItemHeading'>";
-						echo "<nobr>" . $item . "<span class='dots'>...............................................................................</span></nobr>";
-						echo "</span>";
-						if (! $isVisible) {
-							echo "<span class='pvItemValueHidden' "
-								 . "      onclick='javascript:pvShowItem(this, \"" . $source[$serverKey] . "\");'"
-								 . ">";
-							echo "click to reveal";
-							echo "</span>";
-						} else {
-							echo "<span class='pvItemValueVisible'>";
-							echo $source[$serverKey];
-							echo "</span>";
-						}
-						echo "<br>";
-					}
-				}
-			}
-
-			echo "<hr>";
-			echo "<table style='border:0pt;width:100%;'><tr>";
-			echo "<td style='text-align:left;font-family:courier-new;font-size:10pt;'>";
-			echo "<a href='http://paulswarthout.com/index.php/wordpress/'>PaulSwarthout.com/wordpress</a>";
-			echo "</td>";
-			echo "</tr></table>";
 		}
 	}
 }

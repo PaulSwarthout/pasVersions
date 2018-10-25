@@ -14,11 +14,15 @@ p.attributeEntry {
 	border:0pt;
 	font-weight:bold;
 }
+.pvLine {
+	width:100%;
+	white-space:nowrap;
+	overflow:hidden;
+}
 .pvHeading {
 	margin:5px 0px 2px 0px;
 	text-align:center;
 	font-weight:bold;
-	font-size:14pt;
 	font-family:monospace;
 	font-variant:small-caps;
 	width:100%;
@@ -51,7 +55,6 @@ p.attributeEntry {
 	background-color:rgba(176, 176, 176, .1);
 	color:rgba(0,0,0,.4);
 	padding:0 0 0 10px;
-	width:200px;
 	text-align:center;
 	font-weight:normal;
 }
@@ -60,39 +63,159 @@ p.attributeEntry {
 	background-color:white;
 	color:black;
 	font-weight:normal;
-	font-family:courier-new;
-	font-size:10pt;
-	width:200px;
 	display:inline-block;
 }
 #menuPage {
+	background-color:white;
+	color:black;
 	box-shadow:15px 20px 30px #A0A0A0;
+	padding:10px;
 }
-@media screen and (max-width:424px;) {
-	#menuPage {
-		width:300px;
-		border:solid 2pt red;
-		background-color:red;
-		color:green;
-	}
-	.pvItemHeading {
-		width:125px;
-		font-weight:bold;
-		font-size:8pt;
-		font-family:arial;
-	}
+#dashboardPage {
+	width:100%;
+	background-color:white;
+	color:black;
 }
-@media screen and (min-width:425px) {
+#tooSmallNote {
+	width:100%;
+	background-color:white;
+	color:red;
+}
+
+@media (min-width:425px) and (max-width:799px), (min-width:951px) {
+	#tooSmallNote {
+		visibility:hidden;
+		height:0px;
+	}
 	#menuPage {
 		width:410px;
-		border:solid 2pt blue;
-		background-color:white;
-		color:black;
+		visibility:visible;
+	}
+	#dashboardPage {
+		width:100%;
+		visibility:visible;
 	}
 	.pvItemHeading {
 		width:200px;
 		font-weight:bold;
 		font-size:10pt;
 		font-family:courier-new;
+	}
+	.pvHeading {
+		font-size:14pt;
+	}
+	.pvItemValueVisible {
+		font-family:courier-new;
+		font-size:10pt;
+	}
+	.pvItemValueHidden {
+		font-size:10pt;
+	}
+}
+@media (min-width:300px) and (max-width:424px) {
+	#tooSmallNote {
+		visibility:hidden;
+		height:0px;
+	}
+	#menuPage {
+		width:100%;
+		visibility:visible;
+	}
+	#dashboardPage {
+		width:100%;
+		visibility:visible;
+	}
+	.pvItemHeading {
+		width:120px;
+		font-weight:bold;
+		font-size:6pt;
+		font-family:arial;
+	}
+	.pvHeading {
+		font-size:10pt;
+	}
+	.pvItemValueVisible {
+		font-family:courier-new;
+		font-size:8pt;
+	}
+	.pvItemValueHidden {
+		font-size:8pt;
+	}
+}
+@media (min-width:800px) and (max-width:950px) {
+	#tooSmallNote {
+		visibility:hidden;
+		height:0px;
+	}
+	#menuPage {
+		width:410px;
+		visibility:visible;
+	}
+	#dashboardPage {
+		width:100%;
+		visibility:visible;
+	}
+	.pvItemHeading {
+		width:120px;
+		font-weight:bold;
+		font-size:6pt;
+		font-family:arial;
+	}
+	.pvHeading {
+		font-size:10pt;
+	}
+	.pvItemValueVisible {
+		font-family:courier-new;
+		font-size:8pt;
+	}
+	.pvItemValueHidden {
+		font-size:8pt;
+	}
+}
+@media (max-width:299px) {
+	#tooSmallNote {
+		visibility:hidden;
+		height:0px;
+	}
+	#menuPage {
+		width:100%;
+		visibility:visible;
+	}
+	#dashboardPage {
+		width:100%;
+		visibility:visible;
+	}
+	.pvItemHeading {
+		width:60px;
+		font-weight:bold;
+		font-size:6pt;
+		font-family:arial;
+	}
+	.pvHeading {
+		font-size:6pt;
+	}
+	.pvItemValueVisible {
+		font-family:arial;
+		font-size:6pt;
+	}
+	.pvItemValueHidden {
+		font-size:6pt;
+	}
+}
+@media (max-width:239px) {
+	#tooSmallNote {
+		visibility:visible;
+		height:85px;
+		width:150px;
+	}
+	#menuPage {
+		width:150px;
+		visibility:hidden;
+		height:0px;
+	}
+	#dashboardPage {
+		width:150px;
+		visibility:hidden;
+		height:0px;
 	}
 }
