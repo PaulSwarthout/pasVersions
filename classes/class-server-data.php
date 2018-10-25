@@ -1,41 +1,25 @@
 <?PHP
-if (! class_exists('Dev_Environment') ) {
-	class Dev_Environment {
-		private $stringTable;
+if (! class_exists('pas_wse_server_data') ) {
+	class pas_wse_server_data {
 		private $debugging;
 		private $plugin_directory;
 		private $versions;
 		private $serverData;
-		private  $bHideMenu;
+		private $libraryFunctions;
 
-		function __construct($pluginFolder, $pluginBasename) {
-			global $stringTable;
+		function __construct($args) {
+			$this->plugin_directory = $args['pluginDirectory'];
+			$this->libraryFunctions = $args['libraryFunctions'];
 
-			$this->plugin_directory = $pluginFolder;
-			$this->bHideMenu = get_option('pasVersions_hideMenu', false);
-
-			$this->serverData = new serverInfo();
+			$this->serverData = new pas_wse_server_info();
 
 			add_action('admin_enqueue_scripts', Array($this, 'pasVersions_styles') );
 			add_action('admin_enqueue_scripts', array($this, 'pas_version_script' ));
 
-			add_action('wp_ajax_hideMenuOption', array($this, 'hideMenuOption'));
-			add_action('wp_ajax_pasVersion_saveOptions', array($this, 'pasVersion_saveOptions'));
-			add_action('wp_ajax_pas_version_reveal_menu', array($this, 'revealMenuOption'));
-			add_action('wp_ajax_pasVersion_initialize', array($this, 'pas_Versions_initialize'));
-
 			add_action('wp_dashboard_setup', array($this, 'pas_version_dashboard_widgets'));
 		}
-		function getConstant($constantName, $defaultReturn = false) {
-			if (defined($constantName)) {
-				return constant($constantName);
-			} else {
-				return $defaultReturn;
-			}
-		}
-
 		function pas_version_script() {
-			wp_enqueue_script( 'pas_version_scripts', $this->plugin_directory . '/js/pas_version_scripts.js' . ($this->getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
+			wp_enqueue_script( 'pas_version_scripts', $this->plugin_directory['url'] . '/js/pas_version_scripts.js' . ($this->libraryFunctions->getConstant('WP_DEBUG') !== false ? '?v=' . rand(1,999) : ''), false);
 		}
 
 		function initializeEnvironmentData() {
@@ -50,17 +34,16 @@ if (! class_exists('Dev_Environment') ) {
 			$this->versions = Array();
 
 			$this->versions['CURRENT_THEME'] = wp_get_theme()->__toString();
-			$this->serverData->setGroupings([
-												'Versions',
-												'Constants',
-												'WordPress',
-												'Web Server',
-												'FTP',
-												'Database',
-												'Your Info'
-											]);
-			$lastGrouping = "";
-
+			$this->serverData->setGroupings(
+				[
+					'Versions',
+					'Constants',
+					'WordPress',
+					'Web Server',
+					'FTP',
+					'Database',
+					'Your Info'
+				]);
 			$this->versions['WORDPRESS_VERSION'] = $wp_version;
 			$this->versions['PHP_VERSION'] = phpversion();
 			$this->versions['MYSQL_VERSION'] = $mysqlVersion;
@@ -68,8 +51,8 @@ if (! class_exists('Dev_Environment') ) {
 			$this->versions['DB_USER'] = constant('DB_USER');
 			$this->versions['DB_PASS'] = constant('DB_PASSWORD');
 			$this->versions['DB_NAME'] = constant('DB_NAME');
-			$this->versions['WP_DEBUG'] = (getConstant('WP_DEBUG') === true ? "<font style='color:red;background-color:white;'>Enabled</font>" : "Disabled");
-			$this->versions['WP_ALLOW_MULTISITE'] = (getConstant('WP_ALLOW_MULTISITE') === true ? "Yes" : "No");
+			$this->versions['WP_DEBUG'] = ($this->libraryFunctions->getConstant('WP_DEBUG') === true ? "<font style='color:red;background-color:white;'>Enabled</font>" : "Disabled");
+			$this->versions['WP_ALLOW_MULTISITE'] = ($this->libraryFunctions->getConstant('WP_ALLOW_MULTISITE') === true ? "Yes" : "No");
 			$this->versions['CURRENT_THEME'] = wp_get_theme()->__toString();
 			$this->versions['SITE URL'] = (defined('WP_SITEURL') ? constant('WP_SITEURL') : get_bloginfo('url'));
 			$this->versions['WP URL'] = (defined('WP_HOME') ? constant('WP_HOME') : get_bloginfo('wpurl'));
@@ -77,6 +60,13 @@ if (! class_exists('Dev_Environment') ) {
 
 			$this->versions['WORDPRESS_VERSION'] = $wp_version;
 			$this->versions['PHP_VERSION'] = phpversion();
+
+			$user = new pas_wse_user_info();
+
+			$this->versions['LOGGED-ON-USER'] = $user->name();
+			$this->versions['LOGGED-ON-USER-EMAIL'] = $user->email();
+
+			unset($user);
 
 			if (defined('DB_HOST')) {	$this->versions['DB_HOST'] = constant('DB_HOST'); }
 			if (defined('DB_USER')) { $this->versions['DB_USER'] = constant('DB_USER'); }
@@ -97,7 +87,7 @@ if (! class_exists('Dev_Environment') ) {
 			if (defined('PHP_OS')) { $this->versions['PHP_OS'] = constant('PHP_OS'); }
 
 			$this->serverData->add(	[	'itemName'		=> 'WORDPRESS_VERSION',
-										'text'			=> 'WordPress Version: ',
+										'text'			=> 'WordPress: ',
 										'sequence'		=>	0,
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
@@ -107,7 +97,7 @@ if (! class_exists('Dev_Environment') ) {
 									]);
 			$this->serverData->add(	[	'itemName'		=> 'PHP_VERSION',
 										'sequence'		=>	1,
-										'text'			=> 'PHP Version: ',
+										'text'			=> 'PHP: ',
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'manage_options',
@@ -116,7 +106,7 @@ if (! class_exists('Dev_Environment') ) {
 									]);
 			$this->serverData->add(	[	'itemName'		=> 'MYSQL_VERSION',
 										'sequence'		=>	2,
-										'text'			=> 'MySQL Database Version: ',
+										'text'			=> 'MySQL: ',
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'manage_options',
@@ -147,7 +137,7 @@ if (! class_exists('Dev_Environment') ) {
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'read',
-										'colorItTrue'	=> '',
+										'colorIfTrue'	=> '',
 										'groupName'		=> 'WordPress'
 									]);
 			$this->serverData->add( [	'itemName'		=> 'WP URL',
@@ -156,7 +146,7 @@ if (! class_exists('Dev_Environment') ) {
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'read',
-										'colorItTrue'	=> '',
+										'colorIfTrue'	=> '',
 										'groupName'		=> 'WordPress'
 									]);
 			$this->serverData->add( [	'itemName'		=> 'ADM EMAIL',
@@ -165,7 +155,7 @@ if (! class_exists('Dev_Environment') ) {
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'read',
-										'colorItTrue'	=> '',
+										'colorIfTrue'	=> '',
 										'groupName'		=> 'WordPress'
 									]);
 			$this->serverData->add(	[	'itemName'		=> 'CURRENT_THEME',
@@ -349,7 +339,7 @@ if (! class_exists('Dev_Environment') ) {
 										'groupName'		=> 'Database'
 									]);
 			$this->serverData->add(	[	'itemName'		=> 'REMOTE_ADDR',
-										'sequence'		=>	0,
+										'sequence'		=>	2,
 										'text'			=> 'Your IP: ',
 										'data'			=> &$_SERVER,
 										'initialState'	=> 'visible',
@@ -358,9 +348,27 @@ if (! class_exists('Dev_Environment') ) {
 										'groupName'		=> 'Your Info'
 									]);
 			$this->serverData->add(	[	'itemName'		=> 'HTTP_USER_AGENT',
-										'sequence'		=>	1,
-										'text'			=> 'Your browser: ',
+										'sequence'		=>	3,
+										'text'			=> 'Your Browser: ',
 										'data'			=> &$_SERVER,
+										'initialState'	=> 'visible',
+										'capability'	=> 'read',
+										'colorIfTrue'	=> '',
+										'groupName'		=> 'Your Info'
+									]);
+			$this->serverData->add(	[	'itemName'		=> 'LOGGED-ON-USER',
+										'sequence'		=>	0,
+										'text'			=> 'Your Name: ',
+										'data'			=> &$this->versions,
+										'initialState'	=> 'visible',
+										'capability'	=> 'read',
+										'colorIfTrue'	=> '',
+										'groupName'		=> 'Your Info'
+									]);
+			$this->serverData->add(	[	'itemName'		=> 'LOGGED-ON-USER-EMAIL',
+										'sequence'		=>	1,
+										'text'			=> 'Your Email: ',
+										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> 'read',
 										'colorIfTrue'	=> '',

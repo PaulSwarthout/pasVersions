@@ -1,12 +1,12 @@
 <?PHP
-if (! class_exists('serverInfo') ) {
-	class serverInfo {
+if (! class_exists('pas_wse_server_info') ) {
+	class pas_wse_server_info {
 		private	$serverAttributes;
 		private $groupings;
 
 		function __construct() {
-			$this->serverAttributes = get_option("pas_wbe_attributes", []);
-			$groupings				= get_option("pas_wbe_groupings", []);
+			$this->serverAttributes = get_option("pas_wse_attributes", []);
+			$groupings				= get_option("pas_wse_groupings", []);
 			if (count($groupings) > 0) {
 				setGroupings($groupings);
 			}
@@ -27,8 +27,14 @@ if (! class_exists('serverInfo') ) {
 				return null;
 			}
 		}
+		function digits($v, $n) {
+			while (strlen($v) < $n) {
+				$v = "0" . $v;
+			}
+			return $v;
+		}
 		function comparison($a, $b) {
-			return ($a['groupValue'] . "_" . $a['sequence'] <= $b['groupValue'] . "_" . $b['sequence'] ? -1 : 1);
+			return ($a['groupValue'] . "_" . digits($a['sequence'], 2) <= $b['groupValue'] . "_" . digits($b['sequence'], 2) ? -1 : 1);
 		}
 		function getAttributesSortedByGroup() {
 			foreach ($this->serverAttributes as $key => $attribute) {
