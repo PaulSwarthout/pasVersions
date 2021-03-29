@@ -3,7 +3,7 @@
    Plugin Name: Website Summary
    Plugin URI: http://www.paulswarthout.com/website-summary
    Description: A WordPress Dashboard widget, which displays a summary of information about your Wordpress website. Additional information is displayed on a dashboard menu page.
-   Version: 1.1
+   Version: 1.2
    Author: Paul A. Swarthout
    Author URI: http://www.paulswarthout.com
    License: GPL2
