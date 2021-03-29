@@ -1,4 +1,9 @@
 <?PHP
+namespace website_summary;
+
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if (! class_exists('pas_wse_user_info') ) {
 	class pas_wse_user_info {
 		private $pluginDirectory;

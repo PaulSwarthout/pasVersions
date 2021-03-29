@@ -133,6 +133,7 @@ if (! class_exists('pas_wse_server_data') ) {
 
 			$this->versions['LOGGED-ON-USER'] = $user->name();
 			$this->versions['LOGGED-ON-USER-EMAIL'] = $user->email();
+			$this->versions['Install_Root'] = ABSPATH;
 
 			unset($user);
 
@@ -212,6 +213,15 @@ if (! class_exists('pas_wse_server_data') ) {
 										'colorIfTrue'	=> '',
 										'groupName'		=> 'Logging',
 									]);
+			$this->serverData->add(	[	'itemName'		=>	'Install_Root',
+										'sequence'		=>	5,
+										'text'			=>	'WP Install Root: ',
+										'data'			=>	&$this->versions,
+										'initialState'	=>	'visible',
+										'capability'	=>	$capability,
+										'colorIfTrue'	=>	'',
+										'groupName'		=>	'WordPress',
+									]);
 			if ($this->versions['MYSQL_GENERAL_LOG'] != "Disabled") {
 				$this->serverData->add( [	'itemName'		=> 'MYSQL_GENERAL_LOG_FILE',
 											'sequence'		=> 3,
@@ -279,7 +289,7 @@ if (! class_exists('pas_wse_server_data') ) {
 									]);
 			$this->serverData->add(	[	'itemName'		=> 'WP_ALLOW_MULTISITE',
 										'sequence'		=>	4,
-										'text'			=> 'WP_ALLOW_MULTISITE: ',
+										'text'			=> 'Allow MultiSite: ',
 										'data'			=> &$this->versions,
 										'initialState'	=> 'visible',
 										'capability'	=> $capability,

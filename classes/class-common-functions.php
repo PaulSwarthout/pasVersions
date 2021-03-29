@@ -1,4 +1,9 @@
 <?PHP
+namespace website_summary;
+
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class pas_wse_common_functions {
 	function __construct($args = []) {
 	}

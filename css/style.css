@@ -1,3 +1,9 @@
+:root {
+	--default-width:610px;
+	--default-font:monospace;
+	--default-font-size:10pt;
+	--default-header-font-size:14pt;
+}
 p.attributeEntry {
 	margin:0px 0px 2px 0px;
 	line-height:;
@@ -68,13 +74,14 @@ p.attributeEntry {
 #menuPage {
 	background-color:white;
 	color:black;
-	box-shadow:15px 20px 30px #A0A0A0;
+	box-shadow:5px 5px 50px #808080;
 	padding:10px;
 }
 #dashboardPage {
 	width:100%;
 	background-color:white;
 	color:black;
+	overflow:hidden;
 }
 #tooSmallNote {
 	width:100%;
@@ -88,7 +95,7 @@ p.attributeEntry {
 		height:0px;
 	}
 	#menuPage {
-		width:410px;
+		width:var(--default-width);
 		visibility:visible;
 	}
 	#dashboardPage {
@@ -96,20 +103,20 @@ p.attributeEntry {
 		visibility:visible;
 	}
 	.pvItemHeading {
-		width:200px;
+		width:160px;
 		font-weight:bold;
-		font-size:10pt;
-		font-family:courier-new;
+		font-size:var(--default-font-size);
+		font-family:var(--default-font);
 	}
 	.pvHeading {
-		font-size:14pt;
+		font-size:var(--default-header-font-size);
 	}
 	.pvItemValueVisible {
-		font-family:courier-new;
-		font-size:10pt;
+		font-family:var(--default-font);
+		font-size:var(--default-font-size);
 	}
 	.pvItemValueHidden {
-		font-size:10pt;
+		font-size:var(--default-font-size);
 	}
 }
 @media (min-width:300px) and (max-width:424px) {
@@ -135,7 +142,7 @@ p.attributeEntry {
 		font-size:10pt;
 	}
 	.pvItemValueVisible {
-		font-family:courier-new;
+		font-family:var(--default-font);
 		font-size:8pt;
 	}
 	.pvItemValueHidden {
@@ -148,7 +155,7 @@ p.attributeEntry {
 		height:0px;
 	}
 	#menuPage {
-		width:410px;
+		width:var(--default-width);
 		visibility:visible;
 	}
 	#dashboardPage {
@@ -165,7 +172,7 @@ p.attributeEntry {
 		font-size:10pt;
 	}
 	.pvItemValueVisible {
-		font-family:courier-new;
+		font-family:var(--default-font);
 		font-size:8pt;
 	}
 	.pvItemValueHidden {
@@ -218,4 +225,53 @@ p.attributeEntry {
 		visibility:hidden;
 		height:0px;
 	}
+}
+#wp_dashboard .categoryHeader {
+	background-color:white;
+	color:black;
+	cursor:pointer;
+	width:300px;
+	border:solid 1pt black;
+	text-align:left;
+	outline:none;
+	font-size:12pt;
+	line-height:20px;
+}
+#wp_dashboard button {
+	min-height:25px;
+	vertical-align:middle;
+	line-height:25px;
+}
+#wp_dashboard button img {
+	padding-top:5px;
+}
+#wp_dashboard .content {
+	padding-left:30px;
+	max-height:0;
+	overflow:hidden;
+	transition:max-height .7s ease-out;
+	background-color:white;
+	width:300px;
+	font-size:12pt;
+	white-space:nowrap;
+	border-left:solid 1pt black;
+	border-right:solid 1pt black;
+}
+#wp_dashboard .active, .categoryHeader:hover {
+}
+#actionBox {
+	position:fixed;
+	top:50%;
+	left:50%;
+	width:250px;
+	height:40px;
+	margin-left:-125px;
+	margin-top:-20px;
+	border:solid 1pt black;
+	border-radius:25px;
+	box-shadow:20px 25px 25px rgba(0, 0, 0, .5);
+	background-color:darkgray;
+	color:white;
+	text-align:center;
+	line-height:40px;
 }

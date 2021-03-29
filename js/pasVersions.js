@@ -73,3 +73,55 @@ function pvShowItem(item, pwd) {
 	item.innerHTML = pwd
 	item.className = "pvItemValueVisible"
 }
+function createBox(id = "id_" + (new Date()), nodename = "DIV", parent = document.getElementsByTagName("body")[0], className=null) {
+	var box = document.getElementById(id);
+	if (box == null) {
+		box = document.createElement(nodename);
+		box.setAttribute("id", id);
+		parent.appendChild(box);
+		if (className != null) {
+			box.className = className;
+		}
+	} else {
+		box.innerHTML = "";
+	}
+	return box;
+}
+function killElement(element) {
+	element.parentNode.removeChild(element);
+	element.remove();
+}
+
+var classElements = document.getElementsByClassName("categoryHeader");
+
+for (var ndx = 0; ndx < classElements.length; ndx++) {
+	classElements[ndx].addEventListener("click", function () {
+		var content = this.nextElementSibling;
+		if (content.style.maxHeight) {
+			content.style.maxHeight = null;
+			content.style.overflowY = "";
+		} else {
+			if (content.scrollHeight > 300) {
+				content.style.maxHeight = "300px";
+				content.style.overflowY = "scroll";
+			} else {
+				content.style.maxHeight = content.scrollHeight + "px";
+				content.style.overflowY = "";
+			}
+		}
+	});
+}
+
+classElements = document.getElementsByClassName("content");
+for (ndx = 0; ndx < classElements.length; ndx++) {
+	classElements[ndx].addEventListener("mouseover", function (event) {
+		var name = event.target.getAttribute("data-name");
+		var value = event.target.getAttribute("data-value");
+		if (name == null) { return }
+		var box = createBox("actionBox");
+		box.innerHTML = name + ": " + value;
+	});
+	classElements[ndx].addEventListener("mouseout", function () {
+		killElement(createBox("actionBox"));
+	});
+}
