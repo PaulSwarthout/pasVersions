@@ -15,10 +15,7 @@ class pas_wse_common_functions {
 		}
 	}
 	function digits($v, $n) {
-		while (strlen($v) < $n) {
-			$v = "0" . $v;
-		}
-		return $v;
+		return str_pad($v, $n, '0', STR_PAD_LEFT);
 	}
 
 }
