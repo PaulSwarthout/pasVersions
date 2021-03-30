@@ -36,7 +36,7 @@ class symlinks {
  * Once the correct folders and paths are defined, they will be used throughout this plugin instead of __FILE__.
  */
 function is_symlink( $file ) {
-	return ! strpos( wp_normalize_path( symlinks::$content_dir ), wp_normalize_path( dirname( $file ) ) );
+	return ! strpos( wp_normalize_path( symlinks::$content_dir ), wp_normalize_path( \dirname( $file ) ) );
 }
 function get_webserver_view( $file ) {
 	if (is_symlink( $file )) {
@@ -75,4 +75,8 @@ function plugin_dir_url( $file ) {
 // Add additional overrides here based upon what your plugin will need.
 function pathinfo( $file, $part ) {
 	return \pathinfo( get_webserver_view( $file ), $part );
+}
+
+function dirname( $file, $levels = 1 ) {
+	return \dirname( get_webserver_view( $file ), $levels );
 }
